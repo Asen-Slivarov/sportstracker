@@ -1,0 +1,11 @@
+spring:
+  kafka:
+    bootstrap-servers: ${SPRING_KAFKA_BOOTSTRAP_SERVERS:kafka:9092}
+stats:
+  service:
+    url: ${STATS_SERVICE_URL:http://stats-service:8080}
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info

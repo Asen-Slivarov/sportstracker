@@ -1,0 +1,19 @@
+
+# Gradle
+.gradle/
+build/
+out/
+
+# IntelliJ / Eclipse
+.idea/
+*.iml
+*.classpath
+*.project
+*.settings/
+
+# Logs
+*.log
+
+# OS junk
+.DS_Store
+Thumbs.db
