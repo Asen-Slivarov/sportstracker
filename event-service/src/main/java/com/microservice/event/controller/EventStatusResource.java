@@ -11,11 +11,11 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 public class EventStatusResource {
 
-    private final EventRegistryService registry;
+    private final EventRegistryService eventRegistryService;
 
     @PostMapping("/status")
     public ResponseEntity<Void> updateStatus(@Valid @RequestBody EventStatusRequest request) {
-        registry.updateStatus(request.getEventId(), request.getStatus());
+        eventRegistryService.updateStatus(request.getEventId(), request.getStatus());
         return ResponseEntity.ok().build();
     }
 }

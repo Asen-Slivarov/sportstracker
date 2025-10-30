@@ -1,0 +1,29 @@
+version: "3.9"
+
+services:
+  kafka-setup:
+    image: confluentinc/cp-kafka:7.5.0
+    container_name: kafka-setup
+    command: >
+      bash -c "
+        if [ ! -f /var/lib/kafka/meta/meta.properties ]; then
+          echo 'Formatting Kafka storage...';
+          KAFKA_CLUSTER_ID=$(kafka-storage random-uuid);
+          kafka-storage format --ignore-formatted \
+            --cluster-id $KAFKA_CLUSTER_ID \
+            --config /etc/kafka/kraft/server.properties;
+        else
+          echo 'Kafka storage already formatted';
+        fi
+      "
+    volumes:
+      - kafka-meta:/var/lib/kafka/meta
+    restart: "no"
+
+  kafka:
+    depends_on:
+      - kafka-setup
+    environment:
+      CLUSTER_ID: "qDLKmsXgR1S7q8c0Q8ytMg" # not actually used, but prevents errors
+    volumes:
+      - kafka-meta:/var/lib/kafka/meta

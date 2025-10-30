@@ -3,7 +3,10 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.scheduling.annotation.EnableScheduling;
 
-@SpringBootApplication
+@SpringBootApplication(scanBasePackages = {
+        "com.microservice.event",
+        "com.client"
+})
 @EnableScheduling
 public class EventServiceApplication {
     public static void main(String[] args) { SpringApplication.run(EventServiceApplication.class, args); }

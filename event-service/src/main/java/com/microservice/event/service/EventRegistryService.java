@@ -1,5 +1,5 @@
 package com.microservice.event.service;
-import com.microservice.event.EventStatus;
+import com.microservice.event.enums.EventStatus;
 import lombok.RequiredArgsConstructor;
 import org.springframework.scheduling.TaskScheduler;
 import org.springframework.stereotype.Service;

@@ -1,6 +1,6 @@
 package com.microservice.event.service;
 
-import com.microservice.event.EventStatus;
+import com.microservice.event.enums.EventStatus;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;

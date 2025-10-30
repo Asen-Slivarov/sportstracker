@@ -1,35 +1,65 @@
-version: '3.8'
-services:
-  zookeeper:
-    image: confluentinc/cp-zookeeper:7.5.0
-    environment:
-      ZOOKEEPER_CLIENT_PORT: 2181
-    ports: [ "2181:2181" ]
+version: "3.9"
 
+services:
+  # -------------------------
+  # Kafka (KRaft mode - no ZooKeeper)
+  # -------------------------
   kafka:
     image: confluentinc/cp-kafka:7.5.0
-    depends_on: [ zookeeper ]
-    ports: [ "9092:9092" ]
+    hostname: kafka
+    container_name: kafka
+    ports:
+      - "9092:9092"
     environment:
       KAFKA_BROKER_ID: 1
-      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
-      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092,PLAINTEXT_HOST://localhost:9092
-      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
-      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:9092,CONTROLLER://0.0.0.0:19092
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
+      KAFKA_PROCESS_ROLES: broker,controller
+      KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
+      KAFKA_CONTROLLER_QUORUM_VOTERS: 1@kafka:19092
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+      KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
+      KAFKA_METADATA_LOG_DIR: /var/lib/kafka/meta
+      KAFKA_LOG_DIRS: /var/lib/kafka/data
+    user: "0:0"
+    volumes:
+      - kafka-data:/var/lib/kafka/data
+      - kafka-meta:/var/lib/kafka/meta
 
+  # -------------------------
+  # Stats Service
+  # -------------------------
   stats-service:
-    build: ../stats-service
+    build:
+      context: ../stats-service
+    container_name: stats-service
     ports:
-      - "8082:8080"
-
-  event-service:
-    build: ../event-service
-    ports:
-      - "8081:8080"
+      - "8082:8082"
     environment:
+      SPRING_PROFILES_ACTIVE: docker
       SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:9092
-      STATS_SERVICE_URL: http://stats-service:8080
+    depends_on:
+      - kafka
+
+  # -------------------------
+  # Event Service
+  # -------------------------
+  event-service:
+    build:
+      context: ../event-service
+    container_name: event-service
+    ports:
+      - "8081:8081"
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+      SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+      STATS_SERVICE_URL: http://stats-service:8082
     depends_on:
       - kafka
       - stats-service
+
+volumes:
+  kafka-data:
+  kafka-meta:
