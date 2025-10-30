@@ -1,5 +1,5 @@
 package com.microservice.event.config;
-import com.microservice.event.dto.PublishedMessage;
+import com.microservice.event.dto.StatsMessageDTO;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.common.serialization.StringDeserializer;
@@ -19,7 +19,7 @@ import java.util.Map;
 public class KafkaConfig {
 
     @Bean
-    public ProducerFactory<String, PublishedMessage> producerFactory() {
+    public ProducerFactory<String, StatsMessageDTO> producerFactory() {
         Map<String, Object> config = new HashMap<>();
         config.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, "kafka:9092");
         config.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
@@ -28,13 +28,13 @@ public class KafkaConfig {
     }
 
     @Bean
-    public KafkaTemplate<String, PublishedMessage> kafkaTemplate() {
+    public KafkaTemplate<String, StatsMessageDTO> kafkaTemplate() {
         return new KafkaTemplate<>(producerFactory());
     }
 
     @Bean
-    public ConsumerFactory<String, PublishedMessage> consumerFactory() {
-        JsonDeserializer<PublishedMessage> deserializer = new JsonDeserializer<>(PublishedMessage.class);
+    public ConsumerFactory<String, StatsMessageDTO> consumerFactory() {
+        JsonDeserializer<StatsMessageDTO> deserializer = new JsonDeserializer<>(StatsMessageDTO.class);
         deserializer.addTrustedPackages("*");
         Map<String, Object> props = new HashMap<>();
         props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, "kafka:9092");
@@ -45,8 +45,8 @@ public class KafkaConfig {
     }
 
     @Bean
-    public ConcurrentKafkaListenerContainerFactory<String, PublishedMessage> publishedMessageKafkaListenerFactory() {
-        ConcurrentKafkaListenerContainerFactory<String, PublishedMessage> factory = new ConcurrentKafkaListenerContainerFactory<>();
+    public ConcurrentKafkaListenerContainerFactory<String, StatsMessageDTO> publishedMessageKafkaListenerFactory() {
+        ConcurrentKafkaListenerContainerFactory<String, StatsMessageDTO> factory = new ConcurrentKafkaListenerContainerFactory<>();
         factory.setConsumerFactory(consumerFactory());
         return factory;
     }

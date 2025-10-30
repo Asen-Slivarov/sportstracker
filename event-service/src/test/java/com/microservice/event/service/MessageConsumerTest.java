@@ -1,6 +1,6 @@
 package com.microservice.event.service;
 
-import com.microservice.event.dto.PublishedMessage;
+import com.microservice.event.dto.StatsMessageDTO;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -14,7 +14,7 @@ class MessageConsumerTest {
     void shouldConsumeMessage() {
         // Arrange
         MessageConsumer consumer = new MessageConsumer();
-        PublishedMessage message = new PublishedMessage("e1", "2:1", Instant.now());
+        StatsMessageDTO message = new StatsMessageDTO("e1", "2:1", Instant.now());
 
         // Act
         consumer.consume(message);

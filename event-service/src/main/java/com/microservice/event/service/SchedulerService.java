@@ -1,6 +1,7 @@
 package com.microservice.event.service;
 
-import com.microservice.event.dto.PublishedMessage;
+import com.client.statsclient.dto.ExternalApiResponse;
+import com.microservice.event.dto.StatsMessageDTO;
 import com.microservice.event.mapper.MessageMapper;
 import com.client.statsclient.StatsServiceClient;
 import lombok.RequiredArgsConstructor;
@@ -18,8 +19,8 @@ public class SchedulerService {
 
     public void pollAndPublish(String eventId) {
         try {
-            var response = statsClient.fetchStats(eventId);
-            PublishedMessage msg = mapper.toMessage(response);
+            ExternalApiResponse response = statsClient.fetchStats(eventId);
+            StatsMessageDTO msg = mapper.toMessage(response);
             publisher.publish(msg);
             log.info("Published {}", msg);
         } catch (Exception e) {

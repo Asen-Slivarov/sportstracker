@@ -1,6 +1,6 @@
 package com.microservice.event.service;
 
-import com.microservice.event.dto.EventStatusRequest.Status;
+import com.microservice.event.EventStatus;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
@@ -24,10 +24,10 @@ class EventRegistryServiceTest {
         EventRegistryService service = new EventRegistryService(scheduler, schedulerService);
 
         // Act + Assert
-        service.updateStatus("e1", Status.LIVE);
+        service.updateStatus("e1", EventStatus.LIVE);
         assertThat(service.getLiveEvents()).contains("e1");
 
-        service.updateStatus("e1", Status.NOT_LIVE);
+        service.updateStatus("e1", EventStatus.NOT_LIVE);
         assertThat(service.getLiveEvents()).doesNotContain("e1");
     }
 }

@@ -1,6 +1,6 @@
 package com.microservice.event.service;
 
-import com.microservice.event.dto.PublishedMessage;
+import com.microservice.event.dto.StatsMessageDTO;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
@@ -15,7 +15,7 @@ import static org.mockito.Mockito.verify;
 class MessagePublisherTest {
 
     @Mock
-    private KafkaTemplate<String, PublishedMessage> kafkaTemplate;
+    private KafkaTemplate<String, StatsMessageDTO> kafkaTemplate;
 
     @Test
     void shouldPublishMessage() {
@@ -23,7 +23,7 @@ class MessagePublisherTest {
         MessagePublisher publisher = new MessagePublisher(kafkaTemplate);
 
         // Act
-        publisher.publish(new PublishedMessage("e1", "1:0", java.time.Instant.now()));
+        publisher.publish(new StatsMessageDTO("e1", "1:0", java.time.Instant.now()));
 
         // Assert
         verify(kafkaTemplate).send(eq("sports.events"), eq("e1"), any());

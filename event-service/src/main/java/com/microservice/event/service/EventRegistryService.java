@@ -1,5 +1,5 @@
 package com.microservice.event.service;
-import com.microservice.event.dto.EventStatusRequest.Status;
+import com.microservice.event.EventStatus;
 import lombok.RequiredArgsConstructor;
 import org.springframework.scheduling.TaskScheduler;
 import org.springframework.stereotype.Service;
@@ -16,12 +16,12 @@ public class EventRegistryService {
     private final SchedulerService schedulerService;
     private final ConcurrentHashMap<String, ScheduledFuture<?>> jobs = new ConcurrentHashMap<>();
 
-    public void updateStatus(String eventId, Status status) {
-        if (status == Status.LIVE && !jobs.containsKey(eventId)) {
+    public void updateStatus(String eventId, EventStatus status) {
+        if (status == EventStatus.LIVE && !jobs.containsKey(eventId)) {
             ScheduledFuture<?> f = scheduler.scheduleAtFixedRate(
                 () -> schedulerService.pollAndPublish(eventId), Duration.ofSeconds(10));
             jobs.put(eventId, f);
-        } else if (status == Status.NOT_LIVE) {
+        } else if (status == EventStatus.NOT_LIVE) {
             ScheduledFuture<?> f = jobs.remove(eventId);
             if (f != null) f.cancel(false);
         }
