@@ -1,14 +1,31 @@
 package com.microservice.event.service;
+
 import com.microservice.event.dto.PublishedMessage;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.kafka.core.KafkaTemplate;
 
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.verify;
+
+@ExtendWith(MockitoExtension.class)
 class MessagePublisherTest {
-    @Test void shouldPublishMessage() {
-        KafkaTemplate<String, PublishedMessage> kafkaTemplate = Mockito.mock(KafkaTemplate.class);
+
+    @Mock
+    private KafkaTemplate<String, PublishedMessage> kafkaTemplate;
+
+    @Test
+    void shouldPublishMessage() {
+        // Arrange
         MessagePublisher publisher = new MessagePublisher(kafkaTemplate);
-        publisher.publish(new PublishedMessage("e1","1:0", java.time.Instant.now()));
-        Mockito.verify(kafkaTemplate).send(Mockito.eq("sports.events"), Mockito.eq("e1"), Mockito.any());
+
+        // Act
+        publisher.publish(new PublishedMessage("e1", "1:0", java.time.Instant.now()));
+
+        // Assert
+        verify(kafkaTemplate).send(eq("sports.events"), eq("e1"), any());
     }
 }

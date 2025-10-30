@@ -10,15 +10,19 @@ import org.springframework.stereotype.Service;
 @Slf4j
 @Service
 public class MessagePublisher {
+
     private final KafkaTemplate<String, PublishedMessage> kafkaTemplate;
+
     public MessagePublisher(KafkaTemplate<String, PublishedMessage> kafkaTemplate) {
         this.kafkaTemplate = kafkaTemplate;
     }
+
     @Retryable(value = Exception.class, maxAttempts = 3, backoff = @Backoff(delay = 2000))
     public void publish(PublishedMessage msg) {
         kafkaTemplate.send("sports.events", msg.getEventId(), msg);
         log.info("Published message {}", msg);
     }
+
     @Recover
     public void recover(Exception e, PublishedMessage msg) {
         log.error("Failed to publish {}", msg, e);

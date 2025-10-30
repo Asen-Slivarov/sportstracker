@@ -7,8 +7,13 @@ import org.springframework.stereotype.Service;
 @Slf4j
 @Service
 public class MessageConsumer {
-    @KafkaListener(topics = "sports.events", groupId = "event-service-group",
-                   containerFactory = "publishedMessageKafkaListenerFactory")
+
+    @KafkaListener(
+            topics = "sports.events",
+            groupId = "event-service-group",
+            containerFactory = "publishedMessageKafkaListenerFactory"
+    )
+
     public void consume(PublishedMessage message) {
         log.info("Consumed from Kafka: {}", message);
     }

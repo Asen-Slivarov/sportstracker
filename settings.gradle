@@ -1,2 +1,5 @@
 rootProject.name = 'sportstracker'
 include 'event-service', 'stats-service', 'stats-service-client'
+include 'common'
+include 'common'
+
