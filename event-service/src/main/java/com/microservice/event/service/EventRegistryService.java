@@ -17,14 +17,18 @@ public class EventRegistryService {
     private final ConcurrentHashMap<String, ScheduledFuture<?>> jobs = new ConcurrentHashMap<>();
 
     public void updateStatus(String eventId, EventStatus status) {
+
         if (status == EventStatus.LIVE && !jobs.containsKey(eventId)) {
             ScheduledFuture<?> f = scheduler.scheduleAtFixedRate(
                 () -> schedulerService.pollAndPublish(eventId), Duration.ofSeconds(10));
             jobs.put(eventId, f);
         } else if (status == EventStatus.NOT_LIVE) {
             ScheduledFuture<?> f = jobs.remove(eventId);
-            if (f != null) f.cancel(false);
+            if (f != null) {
+                f.cancel(false);
+            }
         }
+
     }
 
     public Set<String> getLiveEvents() { return jobs.keySet(); }

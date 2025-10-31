@@ -3,7 +3,8 @@ package com.microservice.event.service;
 import com.microservice.event.dto.StatsMessageDTO;
 import com.microservice.event.mapper.MessageMapper;
 import com.client.statsclient.StatsServiceClient;
-import com.client.statsclient.dto.ExternalApiResponse;
+import com.client.statsclient.dto.StatsApiResponseDTO;
+import com.microservice.event.producer.MessageProducer;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
@@ -26,7 +27,7 @@ class SchedulerServiceTest {
     private StatsServiceClient client;
 
     @Mock
-    private MessagePublisher publisher;
+    private MessageProducer publisher;
 
     @Mock
     private MessageMapper mapper;
@@ -35,7 +36,7 @@ class SchedulerServiceTest {
     void shouldPollAndPublish() {
         // Arrange
         when(client.fetchStats("e1"))
-                .thenReturn(new ExternalApiResponse("e1", "1:0"));
+                .thenReturn(new StatsApiResponseDTO("e1", "1:0"));
         when(mapper.toMessage(any()))
                 .thenReturn(new StatsMessageDTO("e1", "1:0", Instant.now()));
 
@@ -61,7 +62,7 @@ class SchedulerServiceTest {
 
     @Test
     void shouldHandleExceptionFromMapper() {
-        when(client.fetchStats("e1")).thenReturn(new ExternalApiResponse("e1", "1:0"));
+        when(client.fetchStats("e1")).thenReturn(new StatsApiResponseDTO("e1", "1:0"));
         when(mapper.toMessage(any())).thenThrow(new RuntimeException("Mapping failed"));
 
         SchedulerService service = new SchedulerService(client, publisher, mapper);
@@ -73,7 +74,7 @@ class SchedulerServiceTest {
 
     @Test
     void shouldHandleExceptionFromPublisher() {
-        when(client.fetchStats("e1")).thenReturn(new ExternalApiResponse("e1", "1:0"));
+        when(client.fetchStats("e1")).thenReturn(new StatsApiResponseDTO("e1", "1:0"));
         when(mapper.toMessage(any())).thenReturn(new StatsMessageDTO("e1", "1:0", Instant.now()));
         doThrow(new RuntimeException("Kafka unavailable"))
                 .when(publisher).publish(any());
@@ -88,7 +89,7 @@ class SchedulerServiceTest {
     @Test
     void shouldPollAndPublishMultipleEvents() {
         when(client.fetchStats(anyString()))
-                .thenAnswer(inv -> new ExternalApiResponse(inv.getArgument(0), "2:2"));
+                .thenAnswer(inv -> new StatsApiResponseDTO(inv.getArgument(0), "2:2"));
         when(mapper.toMessage(any())).thenReturn(new StatsMessageDTO("x", "2:2", Instant.now()));
 
         SchedulerService service = new SchedulerService(client, publisher, mapper);

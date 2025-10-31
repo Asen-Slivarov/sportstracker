@@ -1,4 +1,4 @@
-package com.microservice.event.service;
+package com.microservice.event.consumer;
 
 import com.microservice.event.dto.StatsMessageDTO;
 import org.junit.jupiter.api.Test;

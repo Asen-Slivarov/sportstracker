@@ -6,6 +6,9 @@ stats:
   service:
     url: ${STATS_SERVICE_URL:http://localhost:8082}
 
+server:
+  port: 8081
+
 management:
   endpoints:
     web:

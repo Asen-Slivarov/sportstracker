@@ -1,4 +1,4 @@
-package com.microservice.event.service;
+package com.microservice.event.consumer;
 import com.microservice.event.dto.StatsMessageDTO;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.annotation.KafkaListener;

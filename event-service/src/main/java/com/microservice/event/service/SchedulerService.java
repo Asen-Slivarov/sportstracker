@@ -1,9 +1,10 @@
 package com.microservice.event.service;
 
-import com.client.statsclient.dto.ExternalApiResponse;
+import com.client.statsclient.dto.StatsApiResponseDTO;
 import com.microservice.event.dto.StatsMessageDTO;
 import com.microservice.event.mapper.MessageMapper;
 import com.client.statsclient.StatsServiceClient;
+import com.microservice.event.producer.MessageProducer;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -14,12 +15,12 @@ import org.springframework.stereotype.Service;
 public class SchedulerService {
 
     private final StatsServiceClient statsClient;
-    private final MessagePublisher publisher;
+    private final MessageProducer publisher;
     private final MessageMapper mapper;
 
     public void pollAndPublish(String eventId) {
         try {
-            ExternalApiResponse response = statsClient.fetchStats(eventId);
+            StatsApiResponseDTO response = statsClient.fetchStats(eventId);
             StatsMessageDTO msg = mapper.toMessage(response);
             publisher.publish(msg);
             log.info("Published {}", msg);
