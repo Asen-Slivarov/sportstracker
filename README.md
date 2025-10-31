@@ -1,4 +1,4 @@
-# REST Calls - BE Home Assignment
+# Spotstracker Project
 
 **Asen Slivarov**
 
