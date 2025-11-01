@@ -1,16 +1,33 @@
 package com.microservice.event.config;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.scheduling.TaskScheduler;
-import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
+
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.Semaphore;
 
 @Configuration
 public class SchedulerConfig {
-    @Bean
-    public TaskScheduler taskScheduler() {
-        ThreadPoolTaskScheduler t = new ThreadPoolTaskScheduler();
-        t.setPoolSize(8);
-        t.setThreadNamePrefix("event-poller-");
-        return t;
+
+    @Bean(destroyMethod = "close")
+    public ExecutorService vtExecutor() {
+        return Executors.newThreadPerTaskExecutor(
+                Thread.ofVirtual().name("event-vt-", 0).factory()
+        );
     }
+
+    @Bean(destroyMethod = "shutdown")
+    public ScheduledExecutorService tickScheduler() {
+        return Executors.newScheduledThreadPool(
+                Math.max(8, Runtime.getRuntime().availableProcessors() / 2),
+                Thread.ofPlatform().name("tick-", 0).factory()
+        );
+    }
+
+    @Bean
+    public Semaphore concurrentPollCap() {
+        return new Semaphore(1_000);
+    }
+
 }
