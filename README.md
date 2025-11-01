@@ -1,4 +1,4 @@
-# REST Calls - BE Home Assignment
+# Spotstracker Project
 
 **Asen Slivarov**
 
@@ -166,7 +166,3 @@ I used AI assistance in the following areas:
    - I manually adjusted and expanded these tests to ensure they passed and to cover additional edge cases such as Kafka failures and retry handling.
 
 ---
-
-## License
-
-This project is created as part of a Backend Engineer Home Assignment and is not intended
