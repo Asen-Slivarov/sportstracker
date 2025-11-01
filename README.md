@@ -86,31 +86,67 @@ Test coverage includes retry logic, message publishing, scheduling, and API vali
 
 ## Design Decisions Summary
 
-1. **Microservices Structure**
-   - `event-service` handles event scheduling, publishing, and REST APIs.
-   - `stats-service` mocks a third-party API for event statistics.
-   - `stats-service-client` acts as a reusable HTTP client using Spring WebClient.
+### 1. **Microservices Structure**
+- **`event-service`** – Handles event scheduling, polling, publishing, and exposes REST APIs.  
+- **`stats-service`** – Mocks a third-party API for event statistics.  
+- **`stats-service-client`** – A reusable HTTP client built with Spring **WebClient**.
 
-2. **Reactive Client (with blocking)**
-   - `stats-service-client` uses `WebClient` to expose reactive calls but blocks at the end for simplicity.
+---
 
-3. **Kafka Messaging**
-   - Event updates are sent asynchronously to Kafka (`sports.events` topic).
-   - The consumer logs incoming messages.
-   - Uses retry and recovery logic for message publishing.
+### 2. **Reactive Client (with Controlled Blocking)**
+- The `stats-service-client` uses Spring **WebClient** to perform reactive HTTP calls.  
+- For simplicity, the client currently **blocks at the end** of each call.  
+- This allows the system to maintain a straightforward synchronous flow while remaining flexible for a future shift to full reactivity.
 
-4. **Scheduling**
-   - A `SchedulerService` periodically polls stats for all live events and publishes updates every 10 seconds.
+---
 
-5. **Exception Handling**
-   - Global exception handler in the `common` module ensures consistent REST error responses across all microservices.
+### 3. **Kafka Messaging**
+- Event updates are sent **asynchronously** to Kafka (`sports.events` topic).  
+- The Kafka **consumer** logs incoming messages for debugging and observability.  
+- The **producer** uses built-in **retry and recovery logic** to ensure reliable message delivery in case of transient failures.
 
-6. **Swagger Integration**
-   - Each service includes Swagger (OpenAPI 3) documentation for all endpoints at `/swagger-ui.html`.
+---
 
-7. **Dockerized Kafka**
-   - Uses KRaft mode (no ZooKeeper).
-   - Simplifies local setup while avoiding production overhead.
+### 4. **Scheduling (with Virtual Threads)**
+- The `SchedulerService` periodically polls statistics for all **live events** and publishes updates every **10 seconds**.  
+- To efficiently handle many concurrent polling tasks, the system uses **Java Virtual Threads (JEP 444)** instead of a limited fixed-size thread pool.
+
+#### Why Virtual Threads
+- **Massive Concurrency** – Allows thousands of concurrent polling tasks without exhausting system resources.  
+- **Simplified Code** – Each polling task uses traditional **blocking I/O** without needing asynchronous or reactive complexity.  
+- **Isolation & Stability** – Each event runs in its own lightweight thread, so one slow or stuck event doesn’t impact others.  
+- **Efficiency** – Virtual threads automatically yield carrier threads when blocked on I/O, maximizing CPU utilization.
+
+#### Artificial Event Distribution
+- On startup, each event is assigned a **randomized initial delay (jitter)** before beginning its polling cycle.  
+- This prevents all events from polling at the same moment (the **thundering herd problem**) and evenly distributes system load across time.
+
+---
+
+### 5. **Exception Handling**
+- A **global exception handler** in the `common` module ensures consistent REST error responses across all microservices.  
+- This guarantees uniform error structures and simplifies client-side error handling.
+
+---
+
+### 6. **Swagger Integration**
+- Each service exposes **Swagger (OpenAPI 3)** documentation at:  
+  ```
+  /swagger-ui.html
+  ```
+- Enables quick API exploration, testing, and validation for developers and consumers.
+
+---
+
+### 7. **Dockerized Kafka**
+- Kafka runs in **KRaft mode** (no ZooKeeper), simplifying local setup.  
+- This modern configuration reduces maintenance overhead and improves startup reliability.
+
+---
+
+### Summary
+By introducing **virtual threads**, the system combines the **simplicity of blocking code** with the **scalability of asynchronous architectures**.  
+The **artificial distribution of event polling** ensures even workload distribution and predictable performance — enabling the platform to scale efficiently as the number of live events grows.
 
 ---
 
@@ -148,7 +184,7 @@ Response:
 
 Once the services are running:
 
-- Event Service: http://localhost:8081/swagger-ui.html
+- Event Service: http://localhost:8081/swagger-ui.html  
 - Stats Service: http://localhost:8082/swagger-ui.html
 
 ---
@@ -157,12 +193,12 @@ Once the services are running:
 
 I used AI assistance in the following areas:
 
-1. **Kafka configuration for KRaft mode**:
-   - I used AI help to correctly configure Kafka to run without ZooKeeper by setting up proper listener and controller roles, generating a valid cluster ID, and ensuring that the configuration works smoothly in a local environment.
+1. **Kafka configuration for KRaft mode**:  
+   - AI helped configure Kafka to run without ZooKeeper by setting up proper listener and controller roles, generating a valid cluster ID, and ensuring that the configuration works smoothly in a local environment.  
    - Adjustments were made to simplify setup while avoiding production overhead.
 
-2. **Test creation and refinement**:
-   - AI was used to generate initial test templates for producers, schedulers, and controllers.
+2. **Test creation and refinement**:  
+   - AI was used to generate initial test templates for producers, schedulers, and controllers.  
    - I manually adjusted and expanded these tests to ensure they passed and to cover additional edge cases such as Kafka failures and retry handling.
 
 ---
