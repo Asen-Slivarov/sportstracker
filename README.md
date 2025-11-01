@@ -121,6 +121,10 @@ Test coverage includes retry logic, message publishing, scheduling, and API vali
 - On startup, each event is assigned a **randomized initial delay (jitter)** before beginning its polling cycle.  
 - This prevents all events from polling at the same moment (the **thundering herd problem**) and evenly distributes system load across time.
 
+#### Summary
+By introducing **virtual threads**, the system combines the **simplicity of blocking code** with the **scalability of asynchronous architectures**.  
+The **artificial distribution of event polling** ensures even workload distribution and predictable performance — enabling the platform to scale efficiently as the number of live events grows.
+
 ---
 
 ### 5. **Exception Handling**
@@ -143,10 +147,6 @@ Test coverage includes retry logic, message publishing, scheduling, and API vali
 - This modern configuration reduces maintenance overhead and improves startup reliability.
 
 ---
-
-### Summary
-By introducing **virtual threads**, the system combines the **simplicity of blocking code** with the **scalability of asynchronous architectures**.  
-The **artificial distribution of event polling** ensures even workload distribution and predictable performance — enabling the platform to scale efficiently as the number of live events grows.
 
 ---
 
